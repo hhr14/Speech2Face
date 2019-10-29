@@ -33,7 +33,7 @@ def get_hparams():
     parser.add_argument('--weight_path', type=str, default='data/weight.txt')
 
     parser.add_argument('--epochs', type=int, default=300)
-    parser.add_argument('--learning_rate', type=float, default=0.002)
+    parser.add_argument('--learning_rate', type=float, default=0.0002)
     parser.add_argument('--loss', type=str, default=error['mse'])
     parser.add_argument('--validation_freq', type=int, default=5)
     parser.add_argument('--check_point_distance', type=int, default=5)

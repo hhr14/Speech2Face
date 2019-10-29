@@ -475,7 +475,8 @@ def load_best_model(path, hparams):
 def create_model(hparams, ppg_dim, fwh_dim, **kwargs):
     if load_recent_model(hparams.model_save_path) is not None:
         model_path, recent_epoch = load_recent_model(hparams.model_save_path)
-        mymodel = load_model(model_path)
+        with CustomObjectScope({'ZoneoutLSTMCell': ZoneoutLSTMCell}):
+            mymodel = load_model(model_path)
         return mymodel, recent_epoch
     else:
         if hparams.network == 'BLSTM':
