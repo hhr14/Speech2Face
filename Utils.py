@@ -119,14 +119,17 @@ class wavenetDataGenerator(keras.utils.Sequence):
 class dataGenerator(keras.utils.Sequence):
     def __init__(self, ppg, fwh, hparams):
         # self.ppg = ppg
-        self.fwh = fwh
+        # self.fwh = fwh
         self.hparams = hparams
         self.batch_size = int(hparams.batch_size)
         self.ppg = []
-        # add neutral.
+        self.fwh = []
+        # add neutral. bigger than 0 indicate that it is 1, the opposite indicate it is 0.
         for i in range(len(ppg)):
-            if ppg[i][0][-4] == 1:
+            if ppg[i][0][-4] > 0:
                 self.ppg.append(ppg[i])
+                self.fwh.append(fwh[i])
+        print(len(self.ppg))
 
     def __len__(self):
         return len(self.ppg) // self.batch_size
@@ -141,7 +144,6 @@ class dataGenerator(keras.utils.Sequence):
             max_time = max(max_time, len(self.ppg[cindex]))
             self.data_length[i] = 1 / len(self.ppg[cindex])
         #  get max_time.
-
         self.myppg = np.zeros((self.batch_size, max_time, self.ppg[0].shape[-1]))
         self.myfwh = np.zeros((self.batch_size, max_time, self.fwh[0].shape[-1]))
         self.mean_fwh = np.zeros((self.batch_size, 1, self.fwh[0].shape[-1]))
