@@ -118,10 +118,15 @@ class wavenetDataGenerator(keras.utils.Sequence):
 
 class dataGenerator(keras.utils.Sequence):
     def __init__(self, ppg, fwh, hparams):
-        self.ppg = ppg
+        # self.ppg = ppg
         self.fwh = fwh
         self.hparams = hparams
         self.batch_size = int(hparams.batch_size)
+        self.ppg = []
+        # add neutral.
+        for i in range(len(ppg)):
+            if ppg[i][0][-4] == 1:
+                self.ppg.append(ppg[i])
 
     def __len__(self):
         return len(self.ppg) // self.batch_size
