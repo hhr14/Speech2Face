@@ -134,6 +134,8 @@ class dataGenerator(keras.utils.Sequence):
         for i in range(self.batch_size):
             cindex = index * self.batch_size + i
             max_time = max(max_time, len(self.ppg[cindex]))
+            if len(self.ppg[cindex]) == 0:
+                print(cindex)
             self.data_length[i] = 1 / len(self.ppg[cindex])
         #  get max_time.
 
@@ -299,6 +301,8 @@ def dataset_preprocess(hparams):
         if fwh_file_list[i][0] in ppg_file_list:
             _fwh_data = np.load(fwh_file_list[i][1])
             _ppg_data = ppg_file_list[fwh_file_list[i][0]][:len(_fwh_data)]
+            if len(_ppg_data) == 0:
+                print("ppg_length zero :", fwh_file_list[i][0])
             if hparams.get_sad_only is True and _ppg_data[0][-1] != 1:
                 continue
             if hparams.balance is True and _ppg_data[0][-4] == 1:
