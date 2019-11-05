@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if [[ $# != 5 && $# != 6 ]] ; then
     echo -e "Usage input_wav_folder output_folder emotion[0:normal 1:angry 2:happy 3:sad] from_name[0:no 1:yes] is_16k[0:False 1:True]\n\n[Option]\nuse_mfcc[0, 1, 2(mfcc+ppg), t(tianxiao)]"
     exit 1;
