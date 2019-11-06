@@ -9,7 +9,7 @@ import os
 
 if __name__ == '__main__':
     if len(sys.argv) != 7:
-        print("Usage python emotion[0:normal 1:angry 2:happy 3: sad] input_file_path output_file_path from_byte[0:False 1:True] from_name[0:False, 1:True] ppg_dim  < input_file_path")
+        # ("Usage python emotion[0:normal 1:angry 2:happy 3: sad] input_file_path output_file_path from_byte[0:False 1:True] from_name[0:False, 1:True] ppg_dim  < input_file_path")
         exit(-1)
     emotion = sys.argv[1]
     input_file_path = sys.argv[2]
@@ -37,7 +37,6 @@ if __name__ == '__main__':
         vector[3] = 1.0
     else:
         vector[0] = 1.0
-    #print(vector)
     if from_byte == 1:
         ppg = np.frombuffer(sys.stdin.buffer.read(),dtype='float32')
     else:
@@ -50,8 +49,6 @@ if __name__ == '__main__':
     #x2= np.arange(0,duration,1/sr_to)
 
     #f = interp1d(x,y,kind='quadratic',axis=0,fill_value='extrapolate',copy=False,assume_sorted=True)
-    #print(result.shape) 
-    #print(result)
     np.save(os.path.join(output_file_path, filename + '_e' + emotion), result)
     #exit(0)
 

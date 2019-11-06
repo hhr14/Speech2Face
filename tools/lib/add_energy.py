@@ -10,7 +10,7 @@ assert len(ppg) % ppg_dim == 0
 ppg = np.reshape(ppg, (-1, ppg_dim))
 energy = energy[:min(energy.shape[0], ppg.shape[0]), :]
 ppg = ppg[:min(energy.shape[0], ppg.shape[0]), :]
-#print('\n', energy.shape, ppg.shape, '\n')
 assert ppg.shape[0] == energy.shape[0]
 result_ppg = np.concatenate((ppg, energy), axis=1)
+# assert len(result_ppg.reshape(-1)) % 219 == 0
 sys.stdout.buffer.write(result_ppg.astype('float32'))

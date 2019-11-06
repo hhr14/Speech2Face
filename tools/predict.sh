@@ -1,5 +1,6 @@
-if [[ $# != 7 && $# != 10 ]] ; then
-    echo -e "Usage:\n emotion [0: normal 1:angry 2:happy 3:sad]\n fwh_mode [MLPG, window]\n from_name [0: False, 1:True]\n model_save_path [~/Speech2Face/weight/..]\n dataset [~/Speech2Face/data/...]\n use_mfcc[0, 1, 2, t]\n [network_parameters]\n     --gpu\n     --network\n     --batch_size\n     --blstm_use_zoneout\n\n ------[Option]------\n window_length\n window_ne [0:False 1:True]\n add_after_window [0: no window >0: window length]"
+#!/usr/bin/env bash
+if [[ $# != 7 && $# != 8 && $# != 11 ]] ; then
+    echo -e "Usage:\n emotion [0: normal 1:angry 2:happy 3:sad]\n fwh_mode [MLPG, window]\n from_name [0: False, 1:True]\n model_save_path [~/Speech2Face/weight/..]\n dataset [~/Speech2Face/data/...]\n use_mfcc[0, 1, 2, t]\n [network_parameters]\n     --gpu\n     --network\n     --batch_size\n     --blstm_use_zoneout\n\n ------[Option]------\n is_16k\n window_length\n window_ne [0:False 1:True]\n add_after_window [0: no window >0: window length]"
     exit 1;
 fi
 output_ppg_folder=~/Speech2Face/sample/sample_ppg/
@@ -12,7 +13,7 @@ variance=variance.npy
 weight_path=~/Speech2Face/data/weight.txt
 symbol=*
 echo -e "\n>>>>>>>> start predict !\n"
-bash wav2ppg_emotion.sh $input_wave_folder $output_ppg_folder $1 $3 0 $6
+bash wav2ppg_emotion.sh $input_wave_folder $output_ppg_folder $1 $3 $8 $6
 echo -e "\n>>>>>>>> wav2ppg_emotion finish !\n"
 cd ~/Speech2Face/
 python train.py --mode=predict --predict=sample/sample_ppg/ --output_folder=predict_result/fwh_npy/ --model_save_path=$4 --dataset=$5 ${7}
@@ -21,7 +22,7 @@ cd ~/Speech2Face/tools/
 if [ $2 == "MLPG" ] ; then
     bash fwh_MLPG.sh $output_npy_folder $output_txt_folder $5$variance
 elif [ $2 == "window" ] ; then
-    bash fwh_windowave_ne.sh $output_npy_folder $output_txt_folder $8 $9 ${10}
+    bash fwh_windowave_ne.sh $output_npy_folder $output_txt_folder $9 ${10} ${11}
 else
     bash fwh_windowave_ne.sh $output_npy_folder $output_txt_folder 1 1 1
 fi
