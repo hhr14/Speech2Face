@@ -154,6 +154,10 @@ class dataGenerator(keras.utils.Sequence):
                                                 np.zeros(max_time - len(self.ppg[cindex]))))
             if self.hparams.add_mean is True:
                 self.mean_fwh[i][0] = np.mean(self.fwh[cindex], axis=0)
+
+        if self.hparams.add_emotion is False:
+            self.myppg = self.myppg[:, :, :-4]
+
         if self.hparams.add_mean is True:
             output = [self.myfwh, self.mean_fwh]
             mask = [self.data_mask, self.one_mask]
@@ -288,6 +292,7 @@ def dataset_preprocess(hparams):
     data_mask = []
     del_list = []  # del the unpaired fwh_file
     max_time = -1
+    emotion_var = [[None, None, 0] for k in range(4)]  # represent [sum_x, sum_x^2] for 4 emotion
     for fwh_file in fwh_list:
         fwh_file_path = os.path.join(fwh_folder_abspath, fwh_file)
         fwh_file_list.append([fwh_file.split('_')[2], fwh_file_path])
@@ -309,6 +314,15 @@ def dataset_preprocess(hparams):
                 neutral_count += 1
                 if neutral_count > 2000:
                     continue
+            # if hparams.get_emotion_var is True:
+            #     emotion_id = np.argmax(_ppg_data[0][-4:])
+            #     if emotion_var[emotion_id][0] is None:
+            #         emotion_var[emotion_id][0] = np.sum(_fwh_data, axis=0)
+            #         emotion_var[emotion_id][1] = np.sum(_fwh_data ** 2, axis=0)
+            #     else:
+            #         emotion_var[emotion_id][0] += np.sum(_fwh_data, axis=0)
+            #         emotion_var[emotion_id][1] += np.sum(_fwh_data ** 2, axis=0)
+            #     emotion_var[emotion_id][2] += _fwh_data.shape[0]
             # 上面这句话的使用前提是ppg数据严格长于表情参数序列 ！！
             max_time = max(max_time, len(_ppg_data))
             data_length.append(len(_ppg_data))
@@ -326,6 +340,18 @@ def dataset_preprocess(hparams):
     for i in range(len(data_length)):
         fwh_data[i] = modify_output_feature(fwh_data[i], mode=hparams.mode, is_neighbor=hparams.is_neighbor,
                                             window_size=hparams.window_size)
+
+    if hparams.get_emotion_var is True:
+        for i in range(len(fwh_data)):
+            _fwh_data = fwh_data[i]
+            emotion_id = np.argmax(ppg_data[i][0][-4:])
+            if emotion_var[emotion_id][0] is None:
+                emotion_var[emotion_id][0] = np.sum(_fwh_data, axis=0)
+                emotion_var[emotion_id][1] = np.sum(_fwh_data ** 2, axis=0)
+            else:
+                emotion_var[emotion_id][0] += np.sum(_fwh_data, axis=0)
+                emotion_var[emotion_id][1] += np.sum(_fwh_data ** 2, axis=0)
+            emotion_var[emotion_id][2] += _fwh_data.shape[0]
 
     print("after concat", len(ppg_data))
     print("before standardlization")
@@ -396,6 +422,18 @@ def dataset_preprocess(hparams):
 
     if hparams.data_path is not None:
         data_path = hparams.data_path
+
+    if hparams.get_emotion_var is True:
+        emotion_label = ['neutral', 'angry', 'happy', 'sad']
+        for id in range(4):
+            E_sum_x = emotion_var[id][0] / emotion_var[id][2]
+            E_sum_x2 = emotion_var[id][1] / emotion_var[id][2]
+            var = E_sum_x2 - E_sum_x ** 2
+            for i in range(len(var)):
+                if var[i] < 1e-10:
+                    var[i] = 1.0
+            np.save(data_path + emotion_label[id] + '_var', var)
+
     # split train / validation / test
     np.save(data_path + 'data_mask_train', [])
     np.save(data_path + 'data_mask_validation', [])
@@ -476,13 +514,19 @@ def load_best_model(path, hparams):
     return os.path.join(model_path, best_file)
 
 
-def create_model(hparams, ppg_dim, fwh_dim, **kwargs):
+def create_model(hparams, ppg_dim_, fwh_dim, **kwargs):
     if load_recent_model(hparams.model_save_path) is not None:
         model_path, recent_epoch = load_recent_model(hparams.model_save_path)
         with CustomObjectScope({'ZoneoutLSTMCell': ZoneoutLSTMCell}):
             mymodel = load_model(model_path)
         return mymodel, recent_epoch
     else:
+        #  if not add emotion, ppg_dim - 4 due to emotion
+        if hparams.add_emotion is False:
+            ppg_dim = ppg_dim_ - 4
+        else:
+            ppg_dim = ppg_dim_
+
         if hparams.network == 'BLSTM':
             return BRNN(-1, ppg_dim, fwh_dim, hparams).get_model(), 0
         elif hparams.network == 'WaveNet':
@@ -641,6 +685,7 @@ if __name__ == "__main__":
     parser.add_argument('--is_neighbor', type=_str_to_bool, default=True)
     parser.add_argument('--get_sad_only', type=_str_to_bool, default=False)
     parser.add_argument('--balance', type=_str_to_bool, default=False)
+    parser.add_argument('--get_emotion_var', type=_str_to_bool, default=False)
     parser.add_argument('--data_path', type=str, default=None)
     hparams = parser.parse_args()
 

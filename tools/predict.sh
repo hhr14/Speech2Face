@@ -26,6 +26,8 @@ echo -e "\n>>>>>>>> predict fwh32 finish !\n"
 cd ~/Speech2Face/tools/
 if [ $2 == "MLPG" ] ; then
     bash fwh_MLPG.sh $output_npy_folder $output_txt_folder $5$variance
+elif [[ $2 == "MLPG_var" ]] ; then
+    bash fwh_MLPG_evar.sh $output_npy_folder $output_txt_folder $5
 elif [ $2 == "window" ] ; then
     bash fwh_windowave_ne.sh $output_npy_folder $output_txt_folder $9 ${10} ${11}
 else

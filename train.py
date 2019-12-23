@@ -133,6 +133,7 @@ def predict(hparams, predict_file_list, ppg_scaler, fwh_scaler, shape_info):
     best_file_path = Utils.load_best_model(hparams.model_save_path, hparams)
     with CustomObjectScope({'ZoneoutLSTMCell': ZoneoutLSTMCell}):
         mymodel = load_model(best_file_path)
+    print(mymodel.summary())
     my_multi_gpu_model = get_multi_gpu_model(mymodel, hparams.gpu)
     print(predict_file_list, len(predict_file_list))
     for i in range(len(predict_file_list)):
@@ -147,6 +148,10 @@ def predict(hparams, predict_file_list, ppg_scaler, fwh_scaler, shape_info):
             input_ = [ppg_predict[np.newaxis, :], data_length]
         else:
             input_ = ppg_predict[np.newaxis, :]
+
+        if hparams.add_emotion is False:
+            input_ = input_[:, :, :-4]
+
         fwh_predict = my_multi_gpu_model.predict_on_batch(input_)
         if hparams.add_mean is True:
             fwh_predict = fwh_predict[0]

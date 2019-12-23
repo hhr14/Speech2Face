@@ -329,3 +329,6 @@ class WaveNet(object):
         #  [batch_size, input_time, fwh_dim]
         return Model(inputs=[input_fwh, condition_input_ppg], outputs=post_out)
 
+
+class StyleToken(object):
+    pass
