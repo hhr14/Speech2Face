@@ -20,6 +20,7 @@ def get_hparams():
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--zoneout', type=float, default=0.1)
     parser.add_argument('--load_epoch', type=int, default=None)
+    parser.add_argument('--add_emotion', type=_str_to_bool, default=True)
 
     parser.add_argument('--add_mean', type=_str_to_bool, default=False)
     parser.add_argument('--mean_weight', type=float, default=1.0)

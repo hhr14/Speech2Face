@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 mlpg_path=/home/huirhuang/upload/SPTK-3.11/bin/mlpg
 delta_path=/home/huirhuang/upload/SPTK-3.11/bin/delta
 merge_path=/home/huirhuang/upload/SPTK-3.11/bin/merge
